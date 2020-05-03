@@ -1,0 +1,29 @@
+{
+  "prefix": ".",
+  "version": "0.0.1",
+  "channels": {
+    "bot": "287595125193048065"
+  },
+  "commands": {
+    "about": "about",
+    "bot": "bot",
+    "hello": "hello",
+    "help": "help",
+    "create": "create",
+    "join": "join",
+    "play": "play",
+    "abandon": "leave"
+  },
+  "guild": {
+    "id": "196902797902348290",
+    "roles": {
+      "aethex": {
+        "id": "207815823585312768",
+        "name": "Aethex"
+      }
+    }
+  },
+  "sp_msg": {
+    "roleMessage": "705472200865611777"
+  }
+}
