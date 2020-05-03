@@ -8,31 +8,26 @@ function morpion_manager(message, prefix, commands) {
   // Get argument
   const command_arg = message.content.toLowerCase().split(" ");
   const msgLower = command_arg[0];
-  console.log(msgLower);
 
   // Create a game
-  if (msgLower == prefix + commands.create) {
+  if (msgLower == prefix + commands.create.name) {
     const embed = create_game(message.author);
     message.channel.send(embed);
   }
   // Join a game
-  else if (msgLower == prefix + commands.join) {
-    const game_id =
-      message.mentions.users.size != 0
-        ? message.mentions.users.entries().next().value[0]
-        : undefined;
-    console.log(game_id);
+  else if (msgLower == prefix + commands.join.name) {
+    const game_id = message.mentions.users.size != 0 ? message.mentions.users.entries().next().value[0] : undefined;
     const embed = join_game(message.author, game_id);
 
     message.channel.send(embed);
   }
   // Play your turn
-  else if (msgLower == prefix + commands.play) {
+  else if (msgLower == prefix + commands.play.name) {
     const embed = play(message.author, command_arg[1]);
     message.channel.send(embed);
   }
   // Leava a game
-  else if (msgLower == prefix + commands.abandon) {
+  else if (msgLower == prefix + commands.leave.name) {
     const embed = leave(message.author);
     message.channel.send(embed);
   }
@@ -41,8 +36,7 @@ function morpion_manager(message, prefix, commands) {
 // Create a new game
 function create_game(author) {
   // Return if author has already a game !
-  if (games[author.id] != undefined)
-    return err_embed("Vous avez déjà une partie en cours !");
+  if (games[author.id] != undefined) return err_embed("Vous avez déjà une partie en cours !");
 
   games[author.id] = {};
   games[author.id].player1 = author.id;
@@ -54,18 +48,13 @@ function create_game(author) {
     .setAuthor(author.username, author.avatarURL())
     .setTitle(`Morpion game - Partie de ${author.username}`)
     .setColor(0x00ff00)
-    .addField(
-      "En attente d'un joueur !",
-      `Pour rejoindre la partie : .join @${author.username}`
-    );
+    .addField("En attente d'un joueur !", `Pour rejoindre la partie : .join @${author.username}`);
   embed = print_board(embed, author.id);
   return embed;
 }
 
 function join_game(author, game_id) {
-  let embed = new Discord.MessageEmbed()
-    .setTitle(`Morpion game`)
-    .setColor(0xff0000);
+  let embed = new Discord.MessageEmbed().setTitle(`Morpion game`).setColor(0xff0000);
 
   if (game_id == undefined) {
     embed.setDescription("Vous devez mentionné quelqu'un ! .join @username");
@@ -78,9 +67,7 @@ function join_game(author, game_id) {
   }
 
   if (games[game_id] == undefined) {
-    embed.setDescription(
-      `Le joueur mentionné n'a pas de partie en cours ! .join @username`
-    );
+    embed.setDescription(`Le joueur mentionné n'a pas de partie en cours ! .join @username`);
     return embed;
   }
 
@@ -187,30 +174,14 @@ function play(author, nbr) {
 
 function check_win(id, symbol) {
   if (
-    (games[id].board[0] == symbol &&
-      games[id].board[1] == symbol &&
-      games[id].board[2] == symbol) ||
-    (games[id].board[3] == symbol &&
-      games[id].board[4] == symbol &&
-      games[id].board[5] == symbol) ||
-    (games[id].board[6] == symbol &&
-      games[id].board[7] == symbol &&
-      games[id].board[8] == symbol) ||
-    (games[id].board[0] == symbol &&
-      games[id].board[3] == symbol &&
-      games[id].board[6] == symbol) ||
-    (games[id].board[1] == symbol &&
-      games[id].board[4] == symbol &&
-      games[id].board[7] == symbol) ||
-    (games[id].board[3] == symbol &&
-      games[id].board[5] == symbol &&
-      games[id].board[9] == symbol) ||
-    (games[id].board[0] == symbol &&
-      games[id].board[4] == symbol &&
-      games[id].board[8] == symbol) ||
-    (games[id].board[2] == symbol &&
-      games[id].board[4] == symbol &&
-      games[id].board[6] == symbol)
+    (games[id].board[0] == symbol && games[id].board[1] == symbol && games[id].board[2] == symbol) ||
+    (games[id].board[3] == symbol && games[id].board[4] == symbol && games[id].board[5] == symbol) ||
+    (games[id].board[6] == symbol && games[id].board[7] == symbol && games[id].board[8] == symbol) ||
+    (games[id].board[0] == symbol && games[id].board[3] == symbol && games[id].board[6] == symbol) ||
+    (games[id].board[1] == symbol && games[id].board[4] == symbol && games[id].board[7] == symbol) ||
+    (games[id].board[3] == symbol && games[id].board[5] == symbol && games[id].board[9] == symbol) ||
+    (games[id].board[0] == symbol && games[id].board[4] == symbol && games[id].board[8] == symbol) ||
+    (games[id].board[2] == symbol && games[id].board[4] == symbol && games[id].board[6] == symbol)
   ) {
     console.log("A player as win !");
     return 1;
@@ -261,35 +232,20 @@ function print_current_player(embed, game_id) {
     play = games[game_id].player2_name;
   }
 
-  return embed.addField(
-    `${games[game_id].player1_name} vs ${games[game_id].player2_name}`,
-    `C'est le tour de ${play}`
-  );
+  return embed.addField(`${games[game_id].player1_name} vs ${games[game_id].player2_name}`, `C'est le tour de ${play}`);
 }
 
 // Handle embed err message
 function err_embed(message) {
-  let embed = new Discord.MessageEmbed()
-    .setTitle(`Morpion game`)
-    .setColor(0xff0000)
-    .setDescription(message);
+  let embed = new Discord.MessageEmbed().setTitle(`Morpion game`).setColor(0xff0000).setDescription(message);
 
   return embed;
 }
 
 // This function is used to replace a char in a string
 String.prototype.replaceAt = function (index, replacement) {
-  return (
-    this.substr(0, index) +
-    replacement +
-    this.substr(index + replacement.length)
-  );
+  return this.substr(0, index) + replacement + this.substr(index + replacement.length);
 };
 
 // Export all necessary function
-exports.games = games;
-exports.create_game = create_game;
-exports.join_game = join_game;
-exports.play = play;
-exports.abandon = leave;
 exports.morpion_manager = morpion_manager;

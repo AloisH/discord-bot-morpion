@@ -1,29 +1,30 @@
 {
   "prefix": ".",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "channels": {
     "bot": "287595125193048065"
   },
   "commands": {
-    "about": "about",
-    "bot": "bot",
-    "hello": "hello",
-    "help": "help",
-    "create": "create",
-    "join": "join",
-    "play": "play",
-    "abandon": "leave"
-  },
-  "guild": {
-    "id": "196902797902348290",
-    "roles": {
-      "aethex": {
-        "id": "207815823585312768",
-        "name": "Aethex"
-      }
+    "help": {
+      "name": "help",
+      "description": "→ get the list of commands"
+    },
+    "create": {
+      "name": "create",
+      "description": "→ create a morpion game"
+    },
+    "join": {
+      "name": "join",
+      "description": "→ join an existing morpion game"
+    },
+    "play": {
+      "name": "play",
+      "arg": "<number between 1 to 9>",
+      "description": "→ play a round of morpion"
+    },
+    "leave": {
+      "name": "leave",
+      "description": "→ leave your current morpion game"
     }
-  },
-  "sp_msg": {
-    "roleMessage": "705472200865611777"
   }
 }

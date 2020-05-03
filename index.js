@@ -39,15 +39,31 @@ client.on("message", (message) => {
   const msgLower = command_arg[0];
 
   // Help command
-  if (msgLower == prefix + commands.help) {
+  if (msgLower == prefix + commands.help.name) {
     const embed = new Discord.MessageEmbed()
       .setTitle(`Help manual of ${client.user.tag}`)
       .setColor(0x00ff00)
       .setDescription("Get every command of this bot!")
-      .addField(".help", "→ get the list of commands")
-      .addField(".hello", "→ print a hello message")
-      .addField(".bot", "→ give yoursleft Aethex role")
-      .addField(".about", "→ give information that I need");
+      .addField(
+        `.${commands.help.name} ${commands.help.arg != undefined ? commands.help.arg : ""}`,
+        `${commands.help.description}`
+      )
+      .addField(
+        `.${commands.create.name} ${commands.create.arg != undefined ? commands.create.arg : ""}`,
+        `${commands.create.description}`
+      )
+      .addField(
+        `.${commands.join.name} ${commands.join.arg != undefined ? commands.join.arg : ""}`,
+        `${commands.join.description}`
+      )
+      .addField(
+        `.${commands.play.name} ${commands.play.arg != undefined ? commands.play.arg : ""}`,
+        `${commands.play.description}`
+      )
+      .addField(
+        `.${commands.leave.name} ${commands.leave.arg != undefined ? commands.leave.arg : ""}`,
+        `${commands.leave.description}`
+      );
 
     message.author.send(embed);
 
