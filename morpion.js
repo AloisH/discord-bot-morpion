@@ -4,33 +4,60 @@ const Discord = require("discord.js");
 let games = {};
 
 // Functionc to check what commands to execute
-function morpion_manager(message, prefix, commands) {
-  // Get argument
-  const command_arg = message.content.toLowerCase().split(" ");
-  const msgLower = command_arg[0];
+function morpion_chat_manager(message, prefix, commands) {
+  const msgLower = message.content.toLowerCase();
 
   // Create a game
   if (msgLower == prefix + commands.create.name) {
-    const embed = create_game(message.author);
-    message.channel.send(embed);
+    let res = create_game(message.author);
+    send_message(message, res[0], res[1]);
   }
-  // Join a game
-  else if (msgLower == prefix + commands.join.name) {
-    const game_id = message.mentions.users.size != 0 ? message.mentions.users.entries().next().value[0] : undefined;
-    const embed = join_game(message.author, game_id);
+}
 
-    message.channel.send(embed);
+// Function to get emoticons info
+function morpion_emoticons_manager(reaction, user) {
+  if (user.bot) return;
+
+  // Get emoji action
+  let res;
+  switch (reaction.emoji.name) {
+    case "👥":
+      res = join_game(user, reaction.message.embeds[0].footer.text);
+      break;
+    case "1️⃣":
+      res = play(user, "1");
+      break;
+    case "2️⃣":
+      res = play(user, "2");
+      break;
+    case "3️⃣":
+      res = play(user, "3");
+      break;
+    case "4️⃣":
+      res = play(user, "4");
+      break;
+    case "5️⃣":
+      res = play(user, "5");
+      break;
+    case "6️⃣":
+      res = play(user, "6");
+      break;
+    case "7️⃣":
+      res = play(user, "7");
+      break;
+    case "8️⃣":
+      res = play(user, "8");
+      break;
+    case "9️⃣":
+      res = play(user, "9");
+      break;
+    case "❌":
+      res = leave(user);
+      break;
+    default:
+      return;
   }
-  // Play your turn
-  else if (msgLower == prefix + commands.play.name) {
-    const embed = play(message.author, command_arg[1]);
-    message.channel.send(embed);
-  }
-  // Leava a game
-  else if (msgLower == prefix + commands.leave.name) {
-    const embed = leave(message.author);
-    message.channel.send(embed);
-  }
+  send_message(reaction.message, res[0], res[1]);
 }
 
 // Create a new game
@@ -48,9 +75,10 @@ function create_game(author) {
     .setAuthor(author.username, author.avatarURL())
     .setTitle(`Morpion game - Partie de ${author.username}`)
     .setColor(0x00ff00)
-    .addField("En attente d'un joueur !", `Pour rejoindre la partie : .join @${author.username}`);
+    .addField("En attente d'un joueur !", `Pour rejoindre la partie : .join @${author.username}`)
+    .setFooter(author.id);
   embed = print_board(embed, author.id);
-  return embed;
+  return [embed, ["👥", "❌"]];
 }
 
 function join_game(author, game_id) {
@@ -58,22 +86,22 @@ function join_game(author, game_id) {
 
   if (game_id == undefined) {
     embed.setDescription("Vous devez mentionné quelqu'un ! .join @username");
-    return embed;
+    return [embed, []];
   }
 
   if (games[author.id] != undefined) {
     embed.setDescription("Vous avez déjà une partie en cours !");
-    return embed;
+    return [embed, []];
   }
 
   if (games[game_id] == undefined) {
     embed.setDescription(`Le joueur mentionné n'a pas de partie en cours ! .join @username`);
-    return embed;
+    return [embed, []];
   }
 
   if (games[game_id].player2 != undefined) {
     embed.setDescription(`Le joueur mentionné à déjà une partie en cours !`);
-    return embed;
+    return [embed, []];
   }
 
   games[author.id] = {};
@@ -88,7 +116,7 @@ function join_game(author, game_id) {
   embed = print_current_player(embed, game_id);
   embed = print_board(embed, game_id);
 
-  return embed;
+  return [embed, get_available_tile(game_id)];
 }
 
 function play(author, nbr) {
@@ -144,7 +172,7 @@ function play(author, nbr) {
     embed = print_current_player(embed, game_id);
     embed = print_board(embed, game_id);
 
-    return embed;
+    return [embed, get_available_tile(game_id)];
   } else if (win == 1) {
     embed = new Discord.MessageEmbed()
       .setAuthor(author.username, author.avatarURL())
@@ -155,7 +183,7 @@ function play(author, nbr) {
     embed = print_board(embed, game_id);
     games[games[game_id].player2] = undefined;
     games[games[game_id].player1] = undefined;
-    return embed;
+    return [embed, []];
   } else if (win == 2) {
     embed = new Discord.MessageEmbed()
       .setAuthor(author.username, author.avatarURL())
@@ -166,10 +194,10 @@ function play(author, nbr) {
     embed = print_board(embed, game_id);
     games[games[game_id].player2] = undefined;
     games[games[game_id].player1] = undefined;
-    return embed;
+    return [embed, []];
   }
 
-  return embed;
+  return [embed, []];
 }
 
 function check_win(id, symbol) {
@@ -210,7 +238,7 @@ function leave(author) {
     games[games[author.id].id] = undefined;
     games[author.id] = undefined;
   }
-  return embed;
+  return [embed, []];
 }
 
 // Print board of a game in an embed messgae
@@ -235,11 +263,55 @@ function print_current_player(embed, game_id) {
   return embed.addField(`${games[game_id].player1_name} vs ${games[game_id].player2_name}`, `C'est le tour de ${play}`);
 }
 
+function get_available_tile(id) {
+  let res = [];
+
+  if (games[id].board[0] == "_") {
+    res.push("1️⃣");
+  }
+  if (games[id].board[1] == "_") {
+    res.push("2️⃣");
+  }
+  if (games[id].board[2] == "_") {
+    res.push("3️⃣");
+  }
+  if (games[id].board[3] == "_") {
+    res.push("4️⃣");
+  }
+  if (games[id].board[4] == "_") {
+    res.push("5️⃣");
+  }
+  if (games[id].board[5] == "_") {
+    res.push("6️⃣");
+  }
+  if (games[id].board[6] == "_") {
+    res.push("7️⃣");
+  }
+  if (games[id].board[7] == "_") {
+    res.push("8️⃣");
+  }
+  if (games[id].board[8] == "_") {
+    res.push("9️⃣");
+  }
+  res.push("❌");
+
+  return res;
+}
+
 // Handle embed err message
 function err_embed(message) {
   let embed = new Discord.MessageEmbed().setTitle(`Morpion game`).setColor(0xff0000).setDescription(message);
 
-  return embed;
+  return [embed, []];
+}
+
+// Send message and emoticon
+function send_message(message, embed, emojis) {
+  message.channel.send(embed).then((msg) => {
+    emojis.forEach((element) => {
+      msg.react(element);
+    });
+  });
 }
 
 // This function is used to replace a char in a string
@@ -248,4 +320,5 @@ String.prototype.replaceAt = function (index, replacement) {
 };
 
 // Export all necessary function
-exports.morpion_manager = morpion_manager;
+exports.morpion_chat_manager = morpion_chat_manager;
+exports.morpion_emoticons_manager = morpion_emoticons_manager;

@@ -12,19 +12,6 @@
     "create": {
       "name": "create",
       "description": "→ create a morpion game"
-    },
-    "join": {
-      "name": "join",
-      "description": "→ join an existing morpion game"
-    },
-    "play": {
-      "name": "play",
-      "arg": "<number between 1 to 9>",
-      "description": "→ play a round of morpion"
-    },
-    "leave": {
-      "name": "leave",
-      "description": "→ leave your current morpion game"
     }
   }
 }

@@ -12,7 +12,7 @@ client.login(token.token);
 const { prefix, channels, commands } = require("./config/config.json");
 
 // Import morpion game
-const { morpion_manager } = require("./morpion.js");
+const { morpion_chat_manager, morpion_emoticons_manager } = require("./morpion.js");
 
 /* ============================
  * On connection / reconnection
@@ -37,7 +37,7 @@ client.on("reconnecting", () => {
 client.on("message", (message) => {
   const command_arg = message.content.toLowerCase().split(" ");
   const msgLower = command_arg[0];
-
+  console.log(msgLower);
   // Help command
   if (msgLower == prefix + commands.help.name) {
     const embed = new Discord.MessageEmbed()
@@ -51,18 +51,6 @@ client.on("message", (message) => {
       .addField(
         `.${commands.create.name} ${commands.create.arg != undefined ? commands.create.arg : ""}`,
         `${commands.create.description}`
-      )
-      .addField(
-        `.${commands.join.name} ${commands.join.arg != undefined ? commands.join.arg : ""}`,
-        `${commands.join.description}`
-      )
-      .addField(
-        `.${commands.play.name} ${commands.play.arg != undefined ? commands.play.arg : ""}`,
-        `${commands.play.description}`
-      )
-      .addField(
-        `.${commands.leave.name} ${commands.leave.arg != undefined ? commands.leave.arg : ""}`,
-        `${commands.leave.description}`
       );
 
     message.author.send(embed);
@@ -72,8 +60,8 @@ client.on("message", (message) => {
     message.delete();
   }
 
-  // Morpion game
-  morpion_manager(message, prefix, commands);
+  // Morpion chat game
+  morpion_chat_manager(message, prefix, commands);
 });
 
 // Check for emoticons
@@ -89,4 +77,7 @@ client.on("messageReactionAdd", async (reaction, user) => {
       return;
     }
   }
+
+  // Morpion emoticon manager
+  morpion_emoticons_manager(reaction, user);
 });
